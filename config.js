@@ -12,7 +12,7 @@ if (!config.contains("color_offset")) {
   toastLog("使用默认配置");
   // 默认执行配置
   var default_conf = {
-    color_offset: 50,
+    color_offset: 80,
     password: "",
     help_friend: true,
     is_cycle: false,

@@ -104,14 +104,30 @@ function Ant_forest(automator, unlock) {
   const _get_min_countdown_own = function() {
     let target = className("Button").descMatches(/\s/).filter(function(obj) {
       return obj.bounds().height() / obj.bounds().width() > 1.05; 
+      //return obj.bounds().bottom > device.height / 4; 
     });
     if (target.exists()) {
       let ball = target.untilFind();
       let temp = [];
+      log("找到" + ball.length + "个自己的能量球");
+    /*
+    var filters = className("android.widget.Button").filter(function (o) {
+      var desc = o.contentDescription;
+        return (null !== desc.match(/^收集能量|^\s?$/) && o.bounds().bottom > 300 * 2160 / 1280);
+    }).find()
+    var num = filters.length;
+    log("找到" + num + "个能量球");
+    if (filters.length>=1) {
+      let temp = [];
+      let toasts = _get_toast_sync(_package_name, filters.length, function() {
+          _automator.clickMultiCenter(filters);
+          sleep(500);
+      });
+      */
       let toasts = _get_toast_sync(_package_name, ball.length, function() {
         ball.forEach(function(obj) {
           _automator.clickCenter(obj);
-          sleep(500);
+          sleep(300);
         });
       });
       toasts.forEach(function(toast) {
@@ -119,6 +135,7 @@ function Ant_forest(automator, unlock) {
         temp.push(countdown[0] * 60 - (-countdown[1]));
       });
       _min_countdown = Math.min.apply(null, temp);
+      log("countdown_own:"+_min_countdown)
       _timestamp = new Date();
     } else {
       _min_countdown = null;
@@ -180,19 +197,43 @@ function Ant_forest(automator, unlock) {
         // 当前已经过时间大于设定的延迟时间则直接退出
         break;
       }
-      i = (now - startTime) / 60000;
-      let left = minutes - i;
-      log("距离下次运行还有 " + left.toFixed(2) + " 分钟");
-      if (left * 60000 > 30000) {
+      i = now - startTime;
+      let left = timestampGap - i;
+      toastLog("距离下次运行还有 " + (left/60000).toFixed(2) + " 分钟");
+      if (left > 15000) {
         // 剩余时间大于三十秒时 睡眠30秒
         // 锁屏情况下的30秒可能实际时间有五分钟之久，如果不能忍受这个长度可以再改小一点比如10秒之类的
-        sleep(30000);
+        sleep(15000);
       } else {
         // 剩余时间小于30秒时 直接等待实际时间
-        sleep(left * 60000);
+        sleep(left);
       }
     }
   }
+
+  /*
+  const _delay = function(minutes) {
+    minutes = (typeof minutes != null) ? minutes : 0;
+    tensecs = minutes * 6 - 1
+    for (let i = 0; i <= tensecs; i++) {
+      if (i == tensecs) {
+        toast("10秒钟后即将开始收取");
+        sleep(5000);
+        toast("5秒钟后将开始收取");
+        sleep(2000);
+        toast("3秒钟后开始收取");
+        sleep(3000);
+        break;
+      }
+      if(i%6==0){
+        toastLog("距离下次运行还有 " + minutes-- + " 分钟");
+      }
+      //toast("距离下次运行还有 " + (tensecs - i)*10 + " 秒钟");
+      toast("虹霞小可爱😘");
+      sleep(10000);
+    }
+  }
+  */
 
   /***********************
    * 记录能量
@@ -235,7 +276,7 @@ function Ant_forest(automator, unlock) {
     if (descEndsWith("克").exists()) {
       descEndsWith("克").untilFind().forEach(function(ball) {
         _automator.clickCenter(ball);
-        sleep(500);
+        sleep(200);
       });
     }
   }
@@ -253,10 +294,12 @@ function Ant_forest(automator, unlock) {
             w = ball.bounds().width(),
             h = ball.bounds().height(),
             t = _config.get("color_offset");
-        if (images.findColor(screen, "#f99236", {region: [x, y, w, h], threshold: t})) {
+        if (images.findColor(screen, "#F99236", {region: [x, y, w, h], threshold: t})) {
+        // if (true) {
           _automator.clickCenter(ball);
-          sleep(500);
+          sleep(200);
         }
+        // sleep(300);
       });
     }
   }
@@ -271,9 +314,9 @@ function Ant_forest(automator, unlock) {
         t = _config.get("color_offset");
     if (h > 0 && !obj.child(len - 2).childCount()) {
       if (_config.get("help_friend")) {
-        return images.findColor(screen, "#1da06a", {region: [x, y, w, h], threshold: t}) || images.findColor(screen, "#f99236", {region: [x, y, w, h], threshold: t});
+        return images.findColor(screen, "#1DA06D", {region: [x, y, w, h], threshold: t}) || images.findColor(screen, "#F99236", {region: [x, y, w, h], threshold: t});
       } else {
-        return images.findColor(screen, "#1da06a", {region: [x, y, w, h], threshold: t});
+        return images.findColor(screen, "#1DA06D", {region: [x, y, w, h], threshold: t});
       }
     } else {
       return false;
@@ -334,7 +377,7 @@ function Ant_forest(automator, unlock) {
         }
         _automator.back();
         temp.interrupt();
-        while(!textContains("好友排行榜").exists()) sleep(1000);
+        while(!textContains("好友排行榜").exists()) sleep(500);
       }
     }
   }
@@ -342,6 +385,9 @@ function Ant_forest(automator, unlock) {
   // 识别可收取好友并记录
   const _find_and_collect = function() {
     do {
+      if (descEndsWith("查看更多").exists()) {
+        _automator.clickCenter(descEndsWith("查看更多").findOne(_config.get("timeout_findOne")));
+      }
       let screen = captureScreen();
       let friends_list = idEndsWith("J_rank_list").findOne(_config.get("timeout_findOne"));
       if (friends_list) {
@@ -352,10 +398,10 @@ function Ant_forest(automator, unlock) {
         _collect_avil_list();
       }
       scrollDown();
-      sleep(1000);
+      sleep(500);
     } while (!(descEndsWith("没有更多了").exists() && descEndsWith("没有更多了").findOne(_config.get("timeout_findOne")).bounds().centerY() < device.height));
   }
-  
+
   // 监听音量上键结束脚本运行
   const _listen_stop = function() {
     threads.start(function () {
@@ -367,7 +413,7 @@ function Ant_forest(automator, unlock) {
           });
     });
   };
-  
+
   /***********************
    * 主要函数
    ***********************/
@@ -388,7 +434,7 @@ function Ant_forest(automator, unlock) {
   const _collect_friend = function() {
     log("开始收集好友能量");
     descEndsWith("查看更多好友").findOne(_config.get("timeout_findOne")).click();
-    while(!textContains("好友排行榜").exists()) sleep(1000);
+    while(!textContains("好友排行榜").exists()) sleep(500);
     _find_and_collect();
     if (!_config.get("is_cycle")) _get_min_countdown();
     _generate_next();
@@ -402,13 +448,14 @@ function Ant_forest(automator, unlock) {
         events.observeToast();
       });
       while (true) {
+        log("_min_countdown:"+_min_countdown)
         _delay(_min_countdown);
         _listen_stop();
         log("第 " + (++_current_time) + " 次运行");
         _unlock.exec();
         _collect_own();
         _collect_friend();
-        if (_config.get("is_cycle")) sleep(1000);
+        if (_config.get("is_cycle")) sleep(500);
         events.removeAllListeners();
         if (_has_next == false) {
           log("收取结束");

@@ -20,8 +20,14 @@ if (! requestScreenCapture()) {
 // 检查脚本是否重复运行
 engines.all().slice(1).forEach(script => {
   if (script.getSource().getName().indexOf(engines.myEngine().getSource())) {
-    toastLog("脚本正在运行中");
-    engines.myEngine().forceStop();
+    //log(script.getSource().getName());
+    //log(engines.myEngine().getSource());
+    //log(script.getSource().getName().indexOf(engines.myEngine().getSource()));
+    toastLog("脚本后台运行中，即将结束并重新执行");
+    engines.stopAll();
+    engines.execScriptFile(engines.myEngine().getSource());
+    //engines.myEngine().forceStop();
+    //script.forceStop();
   }
 });
 
@@ -29,7 +35,7 @@ engines.all().slice(1).forEach(script => {
  * 依赖加载
  ***********************/
 // 检查更新
-engines.execScriptFile("./update.js");
+//engines.execScriptFile("./update.js");
 
 // 加载本地配置
 var config = storages.create("ant_forest_config");
