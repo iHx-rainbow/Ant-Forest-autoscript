@@ -20,6 +20,7 @@ if (! requestScreenCapture()) {
 // 检查脚本是否重复运行
 engines.all().slice(1).forEach(script => {
   if (script.getSource().getName().indexOf(engines.myEngine().getSource())) {
+    /*
     //log(script.getSource().getName());
     //log(engines.myEngine().getSource());
     //log(script.getSource().getName().indexOf(engines.myEngine().getSource()));
@@ -28,6 +29,9 @@ engines.all().slice(1).forEach(script => {
     engines.execScriptFile(engines.myEngine().getSource());
     //engines.myEngine().forceStop();
     //script.forceStop();
+    */
+    toastLog("脚本正在运行中");
+    engines.myEngine().forceStop();
   }
 });
 

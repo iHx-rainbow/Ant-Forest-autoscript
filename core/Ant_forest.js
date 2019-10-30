@@ -194,7 +194,7 @@ function Ant_forest(automator, unlock) {
       let toasts = _get_toast_async(_package_name, ball.length, function() {
         ball.forEach(function(obj) {
           _automator.clickCenter(obj);
-          sleep(300);
+          sleep(500);
         });
       });
       toasts.forEach(function(toast) {
@@ -202,7 +202,6 @@ function Ant_forest(automator, unlock) {
         temp.push(countdown[0] * 60 - (-countdown[1]));
       });
       _min_countdown = Math.min.apply(null, temp);
-      log("countdown_own:"+_min_countdown)
       _timestamp = new Date();
     } else {
       _min_countdown = null;
@@ -286,7 +285,6 @@ function Ant_forest(automator, unlock) {
       sleep(500)
     }
   }
-  */
 
   /***********************
    * 记录能量
@@ -347,7 +345,7 @@ function Ant_forest(automator, unlock) {
     if (descEndsWith("克").exists()) {
       descEndsWith("克").untilFind().forEach(function(ball) {
         _automator.clickCenter(ball);
-        sleep(200);
+        sleep(500);
       });
     } else if (textEndsWith("克").exists()) {
       textEndsWith("克").untilFind().forEach(function(ball) {
@@ -389,12 +387,10 @@ function Ant_forest(automator, unlock) {
             w = ball.bounds().width(),
             h = ball.bounds().height(),
             t = _config.get("color_offset");
-        if (images.findColor(screen, "#F99236", {region: [x, y, w, h], threshold: t})) {
-        // if (true) {
+        if (images.findColor(screen, "#f99236", {region: [x, y, w, h], threshold: t})) {
           _automator.clickCenter(ball);
-          sleep(200);
+          sleep(500);
         }
-        // sleep(300);
       });
     }
   }
@@ -409,9 +405,9 @@ function Ant_forest(automator, unlock) {
         t = _config.get("color_offset");
     if (h > 0 && !obj.child(len - 2).childCount()) {
       if (_config.get("help_friend")) {
-        return images.findColor(screen, "#1DA06D", {region: [x, y, w, h], threshold: t}) || images.findColor(screen, "#F99236", {region: [x, y, w, h], threshold: t});
+        return images.findColor(screen, "#1da06a", {region: [x, y, w, h], threshold: t}) || images.findColor(screen, "#f99236", {region: [x, y, w, h], threshold: t});
       } else {
-        return images.findColor(screen, "#1DA06D", {region: [x, y, w, h], threshold: t});
+        return images.findColor(screen, "#1da06a", {region: [x, y, w, h], threshold: t});
       }
     } else {
       return false;
@@ -512,7 +508,7 @@ function Ant_forest(automator, unlock) {
       scrollDown0();
     } while ((count += foundNoMoreWidget() ? 1 : 0) < 2);
   }
-
+  
   // 监听音量上键结束脚本运行
   const _listen_stop = function() {
     threads.start(function () {
@@ -524,7 +520,7 @@ function Ant_forest(automator, unlock) {
           });
     });
   };
-
+  
   /***********************
    * 主要函数
    ***********************/
@@ -687,14 +683,13 @@ function Ant_forest(automator, unlock) {
         events.observeToast();
       });
       while (true) {
-        log("_min_countdown:"+_min_countdown)
         _delay(_min_countdown);
         _listen_stop();
         log("第 " + (++_current_time) + " 次运行");
         _unlock.exec();
         _collect_own();
         _collect_friend();
-        if (_config.get("is_cycle")) sleep(500);
+        if (_config.get("is_cycle")) sleep(1000);
         events.removeAllListeners();
         if (_has_next == false) {
           log("收取结束");
